@@ -12,6 +12,8 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/cn";
 import { getImageUrl } from "@/lib/getImageUrl";
+import { useRouter } from "next/navigation";
+import { useSession } from "@clerk/nextjs";
 
 const defaultErrorState = {
   title: "",
@@ -21,9 +23,12 @@ const defaultErrorState = {
 
 const CreatePage = () => {
   const { toast } = useToast();
-  const createImage = useMutation(api.images.createImage);
+  const router = useRouter();
+  const { isLoaded, session } = useSession();
+
+  const createImageTest = useMutation(api.images.createImageTest);
   const generateUploadUrl = useMutation(api.files.generateUploadUrl);
-  //   const saveStorageId = useMutation(api.files.saveStorageId);
+
   const [imageA, setImageA] = useState<string>("");
   const [imageB, setImageB] = useState<string>("");
   const [errors, setErrors] = useState(defaultErrorState);
@@ -37,10 +42,8 @@ const CreatePage = () => {
         explicabo. Placeat quo modi asperiores cum quam pariatur blanditiis,
         odit dolorum. Dolores, blanditiis.
       </p>
-
       <form
-        className="grid grid-cols-2 gap-8"
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
           const form = e.target as HTMLFormElement;
           const formData = new FormData(form);
@@ -76,17 +79,32 @@ const CreatePage = () => {
           if (hasErrors) {
             toast({
               title: "Form Errors",
-              description: "Please fill fields on the page and try again.",
+              description: "Please fill fields on the page",
               variant: "destructive",
             });
             return;
           }
 
-          createImage({
-            imageA,
-            imageB,
-            title,
-          });
+          try {
+            const imageTestId = await createImageTest({
+              imageA,
+              imageB,
+              title,
+              userId: session?.user.id ?? "",
+            });
+
+            router.push(`/images/${imageTestId}`);
+          } catch (err) {
+            toast({
+              title: "You ran out of a free credits",
+              description: (
+                <div>
+                  You must upgrade in order to create more thumbnail tests
+                </div>
+              ),
+              variant: "destructive",
+            });
+          }
         }}
       >
         <div className="flex flex-col gap-4 mb-8">
