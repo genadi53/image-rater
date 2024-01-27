@@ -12,17 +12,26 @@ const Header = ({}: HeaderProps) => {
       <div className="h-16 p-2 container flex justify-between items-center">
         <div>Logo</div>
 
-        <div>
+        <div className="flex gap-8">
           <SignedIn>
-            <Link href={"/create"}>Create</Link>
+            <Link className="link" href={"/create"}>
+              Create
+            </Link>
+            <Link className="link" href={"/dashboard"}>
+              Dashboard
+            </Link>
           </SignedIn>
           <SignedOut>
-            <Link href={"/about"}>About</Link>
-            <Link href={"/pricing"}>Pricing</Link>
+            <Link className="link" href={"/about"}>
+              About
+            </Link>
+            <Link className="link" href={"/pricing"}>
+              Pricing
+            </Link>
           </SignedOut>
         </div>
 
-        <div className="flex gap-4 items-center">
+        <div className="flex gap-8 items-center">
           <SignedIn>
             <UserButton />
           </SignedIn>

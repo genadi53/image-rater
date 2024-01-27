@@ -34,16 +34,24 @@ export const getImageTestById = query({
 export const getImageTestByUser = query({
   args: {},
   handler: async (ctx, args) => {
-    const user = await ctx.auth.getUserIdentity();
+    try {
+      const user = await ctx.auth.getUserIdentity();
+      console.log(user);
+      if (!user) {
+        throw new Error("Need to log in!");
+      }
 
-    // if (!user) {
-    //   throw new Error("Need to log in!");
-    // }
-
-    return ctx.db
-      .query("images")
-      .filter((q) => q.eq(q.field("userId"), user?.subject ?? ""))
-      .collect();
+      return (
+        ctx.db
+          .query("images")
+          .filter((q) => q.eq(q.field("userId"), user?.subject ?? ""))
+          // .order("asc")
+          .collect()
+      );
+    } catch (error) {
+      console.error(error);
+      return [];
+    }
   },
 });
 
