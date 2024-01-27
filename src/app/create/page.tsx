@@ -133,6 +133,7 @@ const CreatePage = () => {
 
             {imageA && (
               <Image
+                className="w-full"
                 width="600"
                 height="800"
                 alt="image test a"
@@ -166,6 +167,7 @@ const CreatePage = () => {
 
               {imageB && (
                 <Image
+                  className="w-full"
                   width="600"
                   height="800"
                   alt="image test b"

@@ -16,6 +16,7 @@ import type {
 } from "convex/server";
 import type * as files from "../files.js";
 import type * as images from "../images.js";
+import type * as utils from "../utils.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -28,6 +29,7 @@ import type * as images from "../images.js";
 declare const fullApi: ApiFromModules<{
   files: typeof files;
   images: typeof images;
+  utils: typeof utils;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,
