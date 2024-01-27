@@ -36,13 +36,13 @@ export const getImageTestByUser = query({
   handler: async (ctx, args) => {
     const user = await ctx.auth.getUserIdentity();
 
-    if (!user) {
-      throw new Error("Need to log in!");
-    }
+    // if (!user) {
+    //   throw new Error("Need to log in!");
+    // }
 
     return ctx.db
       .query("images")
-      .filter((q) => q.eq(q.field("userId"), user.subject))
+      .filter((q) => q.eq(q.field("userId"), user?.subject ?? ""))
       .collect();
   },
 });
@@ -55,7 +55,7 @@ export const voteOnImage = mutation({
 
   handler: async (ctx, args) => {
     const user = await ctx.auth.getUserIdentity();
-    console.log(user);
+    // console.log(user);
     if (!user) {
       throw new Error("You must log in!");
     }
@@ -71,15 +71,17 @@ export const voteOnImage = mutation({
     }
 
     if (imageTest.imageA === args.imageId) {
+      imageTest.votesA++;
       await ctx.db.patch(imageTest._id, {
-        votesA: imageTest.votesA++,
+        votesA: imageTest.votesA,
         voteIds: [...imageTest.voteIds, user.subject],
       });
     }
 
     if (imageTest.imageB === args.imageId) {
+      imageTest.votesB++;
       await ctx.db.patch(imageTest._id, {
-        votesB: imageTest.votesB++,
+        votesB: imageTest.votesB,
         voteIds: [...imageTest.voteIds, user.subject],
       });
     }

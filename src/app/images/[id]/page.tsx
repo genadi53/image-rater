@@ -8,6 +8,8 @@ import { getImageUrl } from "@/lib/getImageUrl";
 import { shuffle } from "lodash";
 import { Button } from "@/components/ui/button";
 import { useSession } from "@clerk/nextjs";
+import { Progress } from "@/components/ui/progress";
+import { useRef } from "react";
 
 interface ImagesPageProps {
   params: {
@@ -23,13 +25,17 @@ const ImagesPage = ({ params }: ImagesPageProps) => {
     testId: params.id as Id<"images">,
   });
   const vote = useMutation(api.images.voteOnImage);
+  const images = useRef<string[] | null>(null);
 
   if (!imageTest || !session) {
     return <div>Loading...</div>;
   }
 
-  const images = shuffle([imageTest?.imageA, imageTest?.imageB]);
-  const [firstImageId, secondImageId] = images;
+  if (!images.current || images.current.length === 0) {
+    images.current = shuffle([imageTest.imageA, imageTest.imageB]);
+  }
+
+  const [firstImageId, secondImageId] = images.current;
 
   const hasVoted = imageTest.voteIds.includes(session.user.id);
 
@@ -37,10 +43,20 @@ const ImagesPage = ({ params }: ImagesPageProps) => {
     if (imageId === imageTest?.imageA) {
       return imageTest.votesA;
     }
+
     if (imageId === imageTest?.imageB) {
       return imageTest.votesB;
     }
     return 0;
+  }
+
+  function getVotePersentage(imageId: string) {
+    if (!imageTest) return 0;
+
+    const totalVotes = imageTest.votesA + imageTest.votesB;
+    if (totalVotes === 0) return 0;
+
+    return Math.round((getVotesFor(imageId) / totalVotes) * 100);
   }
 
   return (
@@ -61,7 +77,13 @@ const ImagesPage = ({ params }: ImagesPageProps) => {
           </div>
 
           {hasVoted ? (
-            <div className="text-lg">{getVotesFor(firstImageId)}</div>
+            <>
+              <Progress
+                value={getVotePersentage(firstImageId)}
+                className="w-full"
+              />
+              <div className="text-lg">{getVotesFor(firstImageId)} Votes</div>
+            </>
           ) : (
             <Button
               onClick={() => {
@@ -91,7 +113,13 @@ const ImagesPage = ({ params }: ImagesPageProps) => {
             />
           </div>
           {hasVoted ? (
-            <div className="text-lg">{getVotesFor(secondImageId)}</div>
+            <>
+              <Progress
+                value={getVotePersentage(secondImageId)}
+                className="w-full"
+              />
+              <div className="text-lg">{getVotesFor(secondImageId)} Votes</div>
+            </>
           ) : (
             <Button
               onClick={() => {
