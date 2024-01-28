@@ -4,7 +4,7 @@ import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { ModeToggle } from "./ThemeToggle";
 import Link from "next/link";
 import { Button } from "./ui/button";
-import { useAction, useMutation } from "convex/react";
+import { useAction, useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { useRouter } from "next/navigation";
 
@@ -13,11 +13,14 @@ interface HeaderProps {}
 const Header = ({}: HeaderProps) => {
   const router = useRouter();
   const pay = useAction(api.stripe.pay);
+  const user = useQuery(api.users.getUser);
 
   const handleProfileUpgrade = async () => {
     const url = await pay();
     router.push(url);
   };
+
+  const isSubscribed = user && (user.endsOn ?? 0) > Date.now();
 
   return (
     <header className="border-b">
@@ -48,9 +51,11 @@ const Header = ({}: HeaderProps) => {
 
         <div className="flex gap-8 items-center">
           <SignedIn>
-            <Button variant={"outline"} onClick={handleProfileUpgrade}>
-              Upgrade
-            </Button>
+            {!isSubscribed && (
+              <Button variant={"outline"} onClick={handleProfileUpgrade}>
+                Upgrade
+              </Button>
+            )}
             <UserButton />
           </SignedIn>
           <SignedOut>

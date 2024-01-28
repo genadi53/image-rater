@@ -2,6 +2,7 @@ import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { getUserId } from "./utils";
 import { paginationOptsValidator } from "convex/server";
+import { isUserSubscribed } from "./users";
 
 export const createImageTest = mutation({
   args: {
@@ -14,6 +15,12 @@ export const createImageTest = mutation({
   },
 
   handler: async (ctx, args) => {
+    const isSubscirbed = await isUserSubscribed(ctx);
+
+    if (!isSubscirbed) {
+      throw new Error("You must be subscribed!");
+    }
+
     const imageTestId = await ctx.db.insert("images", {
       ...args,
       votesA: 0,

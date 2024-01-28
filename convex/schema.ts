@@ -21,5 +21,7 @@ export default defineSchema({
     profileImage: v.optional(v.string()),
     subscriptionId: v.optional(v.string()),
     endsOn: v.optional(v.number()),
-  }).index("by_user_id", ["userId"]),
+  })
+    .index("by_user_id", ["userId"])
+    .index("by_sub_id", ["subscriptionId"]),
 });
