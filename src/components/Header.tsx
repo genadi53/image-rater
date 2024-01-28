@@ -3,10 +3,22 @@
 import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { ModeToggle } from "./ThemeToggle";
 import Link from "next/link";
+import { Button } from "./ui/button";
+import { useAction, useMutation } from "convex/react";
+import { api } from "../../convex/_generated/api";
+import { useRouter } from "next/navigation";
 
 interface HeaderProps {}
 
 const Header = ({}: HeaderProps) => {
+  const router = useRouter();
+  const pay = useAction(api.stripe.pay);
+
+  const handleProfileUpgrade = async () => {
+    const url = await pay();
+    router.push(url);
+  };
+
   return (
     <header className="border-b">
       <div className="h-16 p-2 container flex justify-between items-center">
@@ -36,6 +48,9 @@ const Header = ({}: HeaderProps) => {
 
         <div className="flex gap-8 items-center">
           <SignedIn>
+            <Button variant={"outline"} onClick={handleProfileUpgrade}>
+              Upgrade
+            </Button>
             <UserButton />
           </SignedIn>
           <SignedOut>

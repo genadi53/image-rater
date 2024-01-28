@@ -40,4 +40,28 @@ http.route({
   }),
 });
 
+http.route({
+  path: "/stripe",
+  method: "POST",
+  handler: httpAction(async (ctx, req) => {
+    const signature = req.headers.get("stripe-signature") as string;
+    const payload = await req.text();
+
+    const result = await ctx.runAction(internal.stripe.fulfill, {
+      payload,
+      signature,
+    });
+
+    if (result.success) {
+      return new Response(null, {
+        status: 200,
+      });
+    } else {
+      return new Response("Error Stripe Webhook", {
+        status: 400,
+      });
+    }
+  }),
+});
+
 export default http;
