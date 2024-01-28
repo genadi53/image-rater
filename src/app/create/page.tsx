@@ -91,6 +91,8 @@ const CreatePage = () => {
               imageB,
               title,
               userId: session?.user.id ?? "",
+              name: session?.user.fullName ?? undefined,
+              profileImage: session?.user.imageUrl,
             });
 
             router.push(`/images/${imageTestId}`);

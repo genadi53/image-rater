@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { getUserId } from "./utils";
+import { paginationOptsValidator } from "convex/server";
 
 export const createImageTest = mutation({
   args: {
@@ -8,6 +9,8 @@ export const createImageTest = mutation({
     imageA: v.string(),
     imageB: v.string(),
     userId: v.string(),
+    name: v.optional(v.string()),
+    profileImage: v.optional(v.string()),
   },
 
   handler: async (ctx, args) => {
@@ -52,6 +55,16 @@ export const getImageTestByUser = query({
       console.error(error);
       return [];
     }
+  },
+});
+
+export const getLatestImageTests = query({
+  args: { paginationOpts: paginationOptsValidator },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("images")
+      .order("desc")
+      .paginate(args.paginationOpts);
   },
 });
 

@@ -10,5 +10,16 @@ export default defineSchema({
     imageB: v.string(),
     votesB: v.number(),
     voteIds: v.array(v.string()),
+    name: v.optional(v.string()),
+    profileImage: v.optional(v.string()),
+  }),
+
+  users: defineTable({
+    userId: v.string(),
+    email: v.string(),
+    name: v.optional(v.string()),
+    profileImage: v.optional(v.string()),
+    subscriptionId: v.optional(v.string()),
+    endsOn: v.optional(v.number()),
   }),
 });
