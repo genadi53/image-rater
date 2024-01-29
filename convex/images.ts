@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { getUserId } from "./utils";
+import { getUser, getUserId } from "./utils";
 import { paginationOptsValidator } from "convex/server";
 import { isUserSubscribed } from "./users";
 
@@ -26,6 +26,7 @@ export const createImageTest = mutation({
       votesA: 0,
       votesB: 0,
       voteIds: [],
+      comments: [],
     });
     return imageTestId;
   },
@@ -45,16 +46,16 @@ export const getImageTestByUser = query({
   args: {},
   handler: async (ctx, args) => {
     try {
-      const user = await ctx.auth.getUserIdentity();
-      console.log(user);
-      if (!user) {
+      const userId = await getUserId(ctx);
+
+      if (!userId) {
         throw new Error("Need to log in!");
       }
 
       return (
         ctx.db
           .query("images")
-          .filter((q) => q.eq(q.field("userId"), user?.subject ?? ""))
+          .filter((q) => q.eq(q.field("userId"), userId))
           // .order("asc")
           .collect()
       );
@@ -82,9 +83,9 @@ export const voteOnImage = mutation({
   },
 
   handler: async (ctx, args) => {
-    const user = await ctx.auth.getUserIdentity();
-    // console.log(user);
-    if (!user) {
+    const userId = await getUserId(ctx);
+
+    if (!userId) {
       throw new Error("You must log in!");
     }
 
@@ -94,7 +95,7 @@ export const voteOnImage = mutation({
       throw new Error("Invalid Image Test Id!");
     }
 
-    if (imageTest.voteIds.includes(user.subject)) {
+    if (imageTest.voteIds.includes(userId)) {
       throw new Error("Cannot vote again!");
     }
 
@@ -102,7 +103,7 @@ export const voteOnImage = mutation({
       imageTest.votesA++;
       await ctx.db.patch(imageTest._id, {
         votesA: imageTest.votesA,
-        voteIds: [...imageTest.voteIds, user.subject],
+        voteIds: [...imageTest.voteIds, userId],
       });
     }
 
@@ -110,7 +111,7 @@ export const voteOnImage = mutation({
       imageTest.votesB++;
       await ctx.db.patch(imageTest._id, {
         votesB: imageTest.votesB,
-        voteIds: [...imageTest.voteIds, user.subject],
+        voteIds: [...imageTest.voteIds, userId],
       });
     }
   },

@@ -6,6 +6,7 @@ import {
   mutation,
   query,
 } from "./_generated/server";
+import { getUserId } from "./utils";
 
 export const createUser = mutation({
   args: {
@@ -71,29 +72,30 @@ export const updateSubscriptionBySubId = internalMutation({
 export const getUser = query({
   args: {},
   handler: async (ctx, args) => {
-    const user = await ctx.auth.getUserIdentity();
+    const userId = await getUserId(ctx);
 
-    if (!user) {
-      throw new Error("No user with this id!");
+    if (!userId) {
+      return null;
+      // throw new Error("No user with this id!");
     }
 
     return ctx.db
       .query("users")
-      .withIndex("by_user_id", (q) => q.eq("userId", user.subject))
+      .withIndex("by_user_id", (q) => q.eq("userId", userId))
       .first();
   },
 });
 
 export const isUserSubscribed = async (ctx: QueryCtx | MutationCtx) => {
-  const user = await ctx.auth.getUserIdentity();
+  const userId = await getUserId(ctx);
 
-  if (!user) {
+  if (!userId) {
     throw new Error("No user with this id!");
   }
 
   const userToCheck = await ctx.db
     .query("users")
-    .withIndex("by_user_id", (q) => q.eq("userId", user.subject))
+    .withIndex("by_user_id", (q) => q.eq("userId", userId))
     .first();
 
   return userToCheck && (userToCheck.endsOn ?? 0) > Date.now();
