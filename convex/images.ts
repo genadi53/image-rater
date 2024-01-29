@@ -1,4 +1,4 @@
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { getUser, getUserId } from "./utils";
 import { paginationOptsValidator } from "convex/server";
@@ -18,19 +18,19 @@ export const createImageTest = mutation({
     const userId = await getUserId(ctx);
 
     if (!userId) {
-      throw new Error("You must be loged in!");
+      throw new ConvexError("You must be loged in!");
     }
 
     const user = await getFullUser(ctx, userId);
 
     if (!user) {
-      throw new Error("No such user with this id!");
+      throw new ConvexError("No such user with this id!");
     }
 
     const isSubscirbed = await isUserSubscribed(ctx);
 
     if (!isSubscirbed && user.credits <= 0) {
-      throw new Error("You must be subscribed!");
+      throw new ConvexError("You must be subscribed!");
     }
 
     const imageTestId = await ctx.db.insert("images", {
@@ -60,7 +60,7 @@ export const getImageTestById = query({
       const imageTest = await ctx.db.get(args.testId);
 
       if (!imageTest) {
-        throw new Error("No test with this id!");
+        throw new ConvexError("No test with this id!");
       }
 
       let comments =
@@ -85,7 +85,7 @@ export const getImageTestByUser = query({
       const userId = await getUserId(ctx);
 
       if (!userId) {
-        throw new Error("Need to log in!");
+        throw new ConvexError("Need to log in!");
       }
 
       return (
@@ -122,17 +122,17 @@ export const voteOnImage = mutation({
     const userId = await getUserId(ctx);
 
     if (!userId) {
-      throw new Error("You must log in!");
+      throw new ConvexError("You must log in!");
     }
 
     const imageTest = await ctx.db.get(args.testId);
 
     if (!imageTest) {
-      throw new Error("Invalid Image Test Id!");
+      throw new ConvexError("Invalid Image Test Id!");
     }
 
     if (imageTest.voteIds.includes(userId)) {
-      throw new Error("Cannot vote again!");
+      throw new ConvexError("Cannot vote again!");
     }
 
     if (imageTest.imageA === args.imageId) {
@@ -162,13 +162,13 @@ export const addComment = mutation({
     const user = await getUser(ctx);
 
     if (!user) {
-      throw new Error("You must log in!");
+      throw new ConvexError("You must log in!");
     }
 
     const imageTest = await ctx.db.get(args.testId);
 
     if (!imageTest) {
-      throw new Error("No such image test!");
+      throw new ConvexError("No such image test!");
     }
 
     const newComments = imageTest.comments ?? [];

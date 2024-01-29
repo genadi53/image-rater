@@ -15,6 +15,7 @@ import { getImageUrl } from "@/lib/getImageUrl";
 import { useRouter } from "next/navigation";
 import { useSession } from "@clerk/nextjs";
 import UpgradeButton from "@/components/UpagradeButton";
+import { ConvexError } from "convex/values";
 
 const defaultErrorState = {
   title: "",
@@ -78,12 +79,11 @@ const CreatePage = () => {
           const hasErrors = Object.values(newErrors).some(Boolean);
 
           if (hasErrors) {
-            toast({
+            return toast({
               title: "Form Errors",
               description: "Please fill fields on the page",
               variant: "destructive",
             });
-            return;
           }
 
           try {
@@ -98,20 +98,40 @@ const CreatePage = () => {
 
             router.push(`/images/${imageTestId}`);
           } catch (error) {
-            toast({
-              title: "You ran out of a free credits",
-              description: (
-                <div className="flex flex-row items-center justify-between">
-                  <p className="mr-2">
-                    You must upgrade in order to create more thumbnail tests
-                  </p>
-                  <div className="-mt-8">
-                    <UpgradeButton />
+            if (
+              error instanceof ConvexError &&
+              error.message.includes("subscribe")
+            ) {
+              return toast({
+                title: "You ran out of a free credits",
+                description: (
+                  <div className="flex flex-row items-center justify-between">
+                    <p className="mr-2">
+                      You must upgrade in order to create more thumbnail tests
+                    </p>
+                    <div className="-mt-8">
+                      <UpgradeButton />
+                    </div>
                   </div>
-                </div>
-              ),
-              variant: "destructive",
-            });
+                ),
+                variant: "destructive",
+              });
+            } else {
+              return toast({
+                title: "Something went wrong.",
+                description: (
+                  <div className="flex flex-row items-center justify-between">
+                    <p className="mr-2">
+                      Your test was not created. Please try again.
+                    </p>
+                    <div className="-mt-8">
+                      <UpgradeButton />
+                    </div>
+                  </div>
+                ),
+                variant: "destructive",
+              });
+            }
           }
         }}
       >

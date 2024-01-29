@@ -1,4 +1,4 @@
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import {
   MutationCtx,
   QueryCtx,
@@ -33,7 +33,7 @@ export const updateSubscription = internalMutation({
   handler: async (ctx, args) => {
     const user = await getFullUser(ctx, args.userId);
     if (!user) {
-      throw new Error("No user with this id!");
+      throw new ConvexError("No user with this id!");
     }
 
     await ctx.db.patch(user._id, {
@@ -57,7 +57,7 @@ export const updateSubscriptionBySubId = internalMutation({
       .first();
 
     if (!user) {
-      throw new Error("No user with this sub id!");
+      throw new ConvexError("No user with this sub id!");
     }
 
     await ctx.db.patch(user._id, {
@@ -74,7 +74,7 @@ export const getLoggedUser = query({
 
     if (!userId) {
       return null;
-      // throw new Error("No user with this id!");
+      // throw new ConvexError("No user with this id!");
     }
 
     return getFullUser(ctx, userId);
@@ -85,7 +85,7 @@ export const isUserSubscribed = async (ctx: QueryCtx | MutationCtx) => {
   const userId = await getUserId(ctx);
 
   if (!userId) {
-    throw new Error("No user with this id!");
+    throw new ConvexError("No user with this id!");
   }
 
   const userToCheck = await getFullUser(ctx, userId);
