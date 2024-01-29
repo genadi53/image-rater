@@ -46,20 +46,30 @@ const TestCard = ({ imageTest }: TestCardProps) => {
         </CardTitle>
       </CardHeader>
       <CardContent className="">
+        <h2 className="text-center text-xl font-semibold mb-2">
+          {imageTest.title}
+        </h2>
         <div className="flex gap-4 items-center">
           <Avatar>
             <AvatarImage src={imageTest.profileImage} />
             <AvatarFallback>CN</AvatarFallback>
           </Avatar>
-          <p>{imageTest.title}</p>
+
+          <div className="flex flex-col">
+            <p>{imageTest.name}</p>
+            <p>
+              {formatDistance(new Date(imageTest._creationTime), new Date(), {
+                addSuffix: true,
+              })}
+            </p>
+          </div>
         </div>
 
-        <p>
-          {formatDistance(new Date(imageTest._creationTime), new Date(), {
-            addSuffix: true,
-          })}
-        </p>
-        <p>Votes: {imageTest.votesA + imageTest.votesB}</p>
+        <div className="flex">
+          <p className="ml-auto mr-2">
+            Votes: {imageTest.votesA + imageTest.votesB}
+          </p>
+        </div>
       </CardContent>
       <CardFooter>
         <Button
