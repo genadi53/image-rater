@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { useSession } from "@clerk/nextjs";
 import { Progress } from "@/components/ui/progress";
 import { useRef } from "react";
+import Comments from "@/components/Comments";
 
 interface ImagesPageProps {
   params: {
@@ -136,6 +137,8 @@ const ImagesPage = ({ params }: ImagesPageProps) => {
           )}
         </div>
       </div>
+
+      <Comments imageTest={imageTest} />
     </div>
   );
 };

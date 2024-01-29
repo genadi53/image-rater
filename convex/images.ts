@@ -116,3 +116,38 @@ export const voteOnImage = mutation({
     }
   },
 });
+
+export const addComment = mutation({
+  args: {
+    testId: v.id("images"),
+    text: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const user = await getUser(ctx);
+
+    if (!user) {
+      throw new Error("You must log in!");
+    }
+
+    const imageTest = await ctx.db.get(args.testId);
+
+    if (!imageTest) {
+      throw new Error("No such image test!");
+    }
+
+    const newComments = imageTest.comments ?? [];
+    newComments.unshift({
+      userId: user.subject,
+      name: user.name,
+      profileImage: user.pictureUrl,
+      text: args.text,
+      createdAt: Date.now(),
+    });
+
+    await ctx.db.patch(imageTest._id, {
+      comments: newComments,
+    });
+
+    return null;
+  },
+});
