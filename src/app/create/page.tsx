@@ -14,6 +14,7 @@ import { cn } from "@/lib/cn";
 import { getImageUrl } from "@/lib/getImageUrl";
 import { useRouter } from "next/navigation";
 import { useSession } from "@clerk/nextjs";
+import UpgradeButton from "@/components/UpagradeButton";
 
 const defaultErrorState = {
   title: "",
@@ -96,12 +97,17 @@ const CreatePage = () => {
             });
 
             router.push(`/images/${imageTestId}`);
-          } catch (err) {
+          } catch (error) {
             toast({
               title: "You ran out of a free credits",
               description: (
-                <div>
-                  You must upgrade in order to create more thumbnail tests
+                <div className="flex flex-row items-center justify-between">
+                  <p className="mr-2">
+                    You must upgrade in order to create more thumbnail tests
+                  </p>
+                  <div className="-mt-8">
+                    <UpgradeButton />
+                  </div>
                 </div>
               ),
               variant: "destructive",

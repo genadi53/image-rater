@@ -7,6 +7,7 @@ import {
   query,
 } from "./_generated/server";
 import { getUserId } from "./utils";
+import { CONSTANTS } from "../src/lib/constants";
 
 export const createUser = mutation({
   args: {
@@ -18,6 +19,7 @@ export const createUser = mutation({
   handler: async (ctx, args) => {
     return await ctx.db.insert("users", {
       ...args,
+      credits: CONSTANTS.USER_FREE_CREDITS,
     });
   },
 });
@@ -29,11 +31,7 @@ export const updateSubscription = internalMutation({
     endsOn: v.number(),
   },
   handler: async (ctx, args) => {
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_user_id", (q) => q.eq("userId", args.userId))
-      .first();
-
+    const user = await getFullUser(ctx, args.userId);
     if (!user) {
       throw new Error("No user with this id!");
     }
@@ -69,7 +67,7 @@ export const updateSubscriptionBySubId = internalMutation({
   },
 });
 
-export const getUser = query({
+export const getLoggedUser = query({
   args: {},
   handler: async (ctx, args) => {
     const userId = await getUserId(ctx);
@@ -79,10 +77,7 @@ export const getUser = query({
       // throw new Error("No user with this id!");
     }
 
-    return ctx.db
-      .query("users")
-      .withIndex("by_user_id", (q) => q.eq("userId", userId))
-      .first();
+    return getFullUser(ctx, userId);
   },
 });
 
@@ -93,10 +88,14 @@ export const isUserSubscribed = async (ctx: QueryCtx | MutationCtx) => {
     throw new Error("No user with this id!");
   }
 
-  const userToCheck = await ctx.db
+  const userToCheck = await getFullUser(ctx, userId);
+
+  return userToCheck && (userToCheck.endsOn ?? 0) > Date.now();
+};
+
+export const getFullUser = (ctx: QueryCtx | MutationCtx, userId: string) => {
+  return ctx.db
     .query("users")
     .withIndex("by_user_id", (q) => q.eq("userId", userId))
     .first();
-
-  return userToCheck && (userToCheck.endsOn ?? 0) > Date.now();
 };

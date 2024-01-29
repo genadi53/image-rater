@@ -12,16 +12,14 @@ export default defineSchema({
     voteIds: v.array(v.string()),
     name: v.optional(v.string()),
     profileImage: v.optional(v.string()),
-    comments: v.optional(
-      v.array(
-        v.object({
-          userId: v.string(),
-          text: v.string(),
-          createdAt: v.number(),
-          name: v.optional(v.string()),
-          profileImage: v.optional(v.string()),
-        })
-      )
+    comments: v.array(
+      v.object({
+        userId: v.string(),
+        text: v.string(),
+        createdAt: v.number(),
+        name: v.optional(v.string()),
+        profileImage: v.optional(v.string()),
+      })
     ),
   }),
 
@@ -32,6 +30,7 @@ export default defineSchema({
     profileImage: v.optional(v.string()),
     subscriptionId: v.optional(v.string()),
     endsOn: v.optional(v.number()),
+    credits: v.number(),
   })
     .index("by_user_id", ["userId"])
     .index("by_sub_id", ["subscriptionId"]),

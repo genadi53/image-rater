@@ -2,7 +2,7 @@ import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { getUser, getUserId } from "./utils";
 import { paginationOptsValidator } from "convex/server";
-import { isUserSubscribed } from "./users";
+import { getFullUser, isUserSubscribed } from "./users";
 
 export const createImageTest = mutation({
   args: {
@@ -15,9 +15,21 @@ export const createImageTest = mutation({
   },
 
   handler: async (ctx, args) => {
+    const userId = await getUserId(ctx);
+
+    if (!userId) {
+      throw new Error("You must be loged in!");
+    }
+
+    const user = await getFullUser(ctx, userId);
+
+    if (!user) {
+      throw new Error("No such user with this id!");
+    }
+
     const isSubscirbed = await isUserSubscribed(ctx);
 
-    if (!isSubscirbed) {
+    if (!isSubscirbed && user.credits <= 0) {
       throw new Error("You must be subscribed!");
     }
 
@@ -28,6 +40,11 @@ export const createImageTest = mutation({
       voteIds: [],
       comments: [],
     });
+
+    await ctx.db.patch(user._id, {
+      credits: Math.max(0, user.credits - 1),
+    });
+
     return imageTestId;
   },
 });
@@ -38,7 +55,26 @@ export const getImageTestById = query({
   },
 
   handler: async (ctx, args) => {
-    return ctx.db.get(args.testId);
+    try {
+      const isSubscirbed = await isUserSubscribed(ctx);
+      const imageTest = await ctx.db.get(args.testId);
+
+      if (!imageTest) {
+        throw new Error("No test with this id!");
+      }
+
+      let comments =
+        imageTest.comments.length === 0 ? [] : [imageTest.comments.shift()];
+
+      if (isSubscirbed) {
+        comments = imageTest.comments;
+      }
+
+      return { ...imageTest, comments };
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
   },
 });
 
