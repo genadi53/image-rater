@@ -15,6 +15,7 @@ import Link from "next/link";
 import { Doc, Id } from "../../convex/_generated/dataModel";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useSession } from "@clerk/nextjs";
+import { getInitials } from "@/lib/nameInitals";
 
 interface TestCardProps {
   imageTest: Doc<"images">;

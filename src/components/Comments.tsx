@@ -21,6 +21,7 @@ import { useToast } from "./ui/use-toast";
 import { formatDistance } from "date-fns";
 import { useIsSubscribed } from "@/hooks/useIsSubscribed";
 import UpgradeButton from "./UpagradeButton";
+import { getInitials } from "@/lib/nameInitals";
 
 interface CommentsProps {
   imageTest: Doc<"images">;

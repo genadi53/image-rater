@@ -1,4 +1,4 @@
-function getInitials(name: string | undefined) {
+export function getInitials(name: string | undefined) {
   if (!name) return "CN";
   const words = name.split(" ").slice(0, 3);
   let initials = "";
