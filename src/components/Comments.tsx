@@ -103,7 +103,7 @@ const Comments = ({ imageTest }: CommentsProps) => {
               <div className="flex gap-4">
                 <Avatar>
                   <AvatarImage src={comment.profileImage} />
-                  <AvatarFallback>CN</AvatarFallback>
+                  <AvatarFallback>{getInitials(comment.name)}</AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col">
                   <p>

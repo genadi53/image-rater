@@ -52,7 +52,7 @@ const TestCard = ({ imageTest }: TestCardProps) => {
         <div className="flex gap-4 items-center">
           <Avatar>
             <AvatarImage src={imageTest.profileImage} />
-            <AvatarFallback>CN</AvatarFallback>
+            <AvatarFallback>{getInitials(imageTest.name)}</AvatarFallback>
           </Avatar>
 
           <div className="flex flex-col">
