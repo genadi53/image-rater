@@ -19,8 +19,6 @@ interface ImagesPageProps {
 }
 
 const ImagesPage = ({ params }: ImagesPageProps) => {
-  const getImageTestByUser = useQuery(api.images.getImageTestByUser);
-
   const { session, isLoaded } = useSession();
   const imageTest = useQuery(api.images.getImageTestById, {
     testId: params.id as Id<"images">,

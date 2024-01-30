@@ -3,6 +3,7 @@ import { mutation, query } from "./_generated/server";
 import { getUser, getUserId } from "./utils";
 import { paginationOptsValidator } from "convex/server";
 import { getFullUser, isUserSubscribed } from "./users";
+import { Doc } from "./_generated/dataModel";
 
 export const createImageTest = mutation({
   args: {
@@ -64,7 +65,7 @@ export const getImageTestById = query({
       }
 
       let comments =
-        imageTest.comments.length === 0 ? [] : [imageTest.comments.shift()];
+        imageTest.comments.length === 0 ? [] : [imageTest.comments[0]];
 
       if (isSubscirbed) {
         comments = imageTest.comments;
