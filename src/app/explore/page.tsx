@@ -4,6 +4,8 @@ import { usePaginatedQuery, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import TestCard from "@/components/TestCard";
 import { Button } from "@/components/ui/button";
+import { SkeletonCard } from "@/components/SkeletonCard";
+import Empty from "@/components/Empty";
 
 const ExplorePage = () => {
   const { results, status, loadMore, isLoading } = usePaginatedQuery(
@@ -17,12 +19,29 @@ const ExplorePage = () => {
   }
 
   return (
-    <div>
+    <div className="pt-12">
+      <h1 className="text-center text-4xl font-bold mb-12">
+        Review The Community Tests
+      </h1>
+
+      {isLoading && (
+        <div className="animate-pulse my-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 pb-40">
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+        </div>
+      )}
+
+      {!isLoading && results.length === 0 && (
+        <Empty message="No tests to display" />
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 my-12 gap-8">
         {results?.map((test) => {
           return <TestCard key={test._id} imageTest={test} />;
         })}
       </div>
+
       <Button
         className="w-full mb-12"
         disabled={status !== "CanLoadMore"}
