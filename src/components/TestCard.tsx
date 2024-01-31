@@ -8,6 +8,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { getImageUrl } from "@/lib/getImageUrl";
 import { formatDistance } from "date-fns";
 import Image from "next/image";
@@ -16,12 +27,14 @@ import { Doc, Id } from "../../convex/_generated/dataModel";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useSession } from "@clerk/nextjs";
 import { getInitials } from "@/lib/nameInitals";
+import { TrashIcon } from "lucide-react";
 
 interface TestCardProps {
   imageTest: Doc<"images">;
+  deleteImageTest?: () => void | undefined;
 }
 
-const TestCard = ({ imageTest }: TestCardProps) => {
+const TestCard = ({ imageTest, deleteImageTest }: TestCardProps) => {
   const { session } = useSession();
 
   function hasVoted(voteIds: string[] | undefined) {
@@ -31,9 +44,40 @@ const TestCard = ({ imageTest }: TestCardProps) => {
   }
 
   return (
-    <Card>
+    <Card className="">
       <CardHeader>
-        <CardTitle>
+        <CardTitle className="relative">
+          {deleteImageTest && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  className="absolute right-1.5 top-1.5"
+                  variant={"destructive"}
+                >
+                  <TrashIcon className="w-4 h-4" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete
+                    the test and remove your data from our servers.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => {
+                      deleteImageTest();
+                    }}
+                  >
+                    Continue
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
           <Image
             src={
               imageTest.votesA >= imageTest.votesB

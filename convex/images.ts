@@ -188,3 +188,34 @@ export const addComment = mutation({
     return null;
   },
 });
+
+export const deleteImageTest = mutation({
+  args: {
+    testId: v.id("images"),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getUserId(ctx);
+
+    if (!userId) {
+      throw new ConvexError("You must log in!");
+    }
+
+    const user = await getFullUser(ctx, userId);
+
+    if (!user) {
+      throw new ConvexError("No user with such id!");
+    }
+
+    if (!user.isAdmin) {
+      throw new ConvexError("You must be an admin to delete test!");
+    }
+
+    const imageTest = await ctx.db.get(args.testId);
+
+    if (!imageTest) {
+      throw new ConvexError("No such image test!");
+    }
+
+    await ctx.db.delete(imageTest._id);
+  },
+});

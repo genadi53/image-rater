@@ -1,7 +1,7 @@
 "use client";
 
 import TestCard from "@/components/TestCard";
-import { useQuery } from "convex/react";
+import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import Empty from "@/components/Empty";
 import { SkeletonCard } from "@/components/SkeletonCard";
@@ -9,6 +9,14 @@ import { SkeletonCard } from "@/components/SkeletonCard";
 const DashboardPage = () => {
   const userTests = useQuery(api.images.getImageTestByUser);
   const sortedTests = [...(userTests ?? [])].reverse();
+
+  const { isAuthenticated } = useConvexAuth();
+  const user = useQuery(
+    api.users.getLoggedUser,
+    !isAuthenticated ? "skip" : undefined
+  );
+
+  const deleteTest = useMutation(api.images.deleteImageTest);
 
   return (
     <div className="pt-12">
@@ -28,7 +36,19 @@ const DashboardPage = () => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 my-12 gap-8">
         {sortedTests?.map((test) => {
-          return <TestCard imageTest={test} key={test._id} />;
+          return (
+            <TestCard
+              key={test._id}
+              imageTest={test}
+              deleteImageTest={
+                user?.isAdmin
+                  ? () => {
+                      deleteTest({ testId: test._id });
+                    }
+                  : undefined
+              }
+            />
+          );
         })}
       </div>
     </div>

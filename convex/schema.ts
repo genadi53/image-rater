@@ -31,6 +31,7 @@ export default defineSchema({
     subscriptionId: v.optional(v.string()),
     endsOn: v.optional(v.number()),
     credits: v.number(),
+    isAdmin: v.optional(v.boolean()),
   })
     .index("by_user_id", ["userId"])
     .index("by_sub_id", ["subscriptionId"]),

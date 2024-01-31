@@ -1,6 +1,11 @@
 "use client";
 
-import { usePaginatedQuery, useQuery } from "convex/react";
+import {
+  useConvexAuth,
+  useMutation,
+  usePaginatedQuery,
+  useQuery,
+} from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import TestCard from "@/components/TestCard";
 import { Button } from "@/components/ui/button";
@@ -8,6 +13,14 @@ import { SkeletonCard } from "@/components/SkeletonCard";
 import Empty from "@/components/Empty";
 
 const ExplorePage = () => {
+  const { isAuthenticated } = useConvexAuth();
+  const user = useQuery(
+    api.users.getLoggedUser,
+    !isAuthenticated ? "skip" : undefined
+  );
+
+  const deleteTest = useMutation(api.images.deleteImageTest);
+
   const { results, status, loadMore, isLoading } = usePaginatedQuery(
     api.images.getLatestImageTests,
     {},
@@ -38,7 +51,19 @@ const ExplorePage = () => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 my-12 gap-8">
         {results?.map((test) => {
-          return <TestCard key={test._id} imageTest={test} />;
+          return (
+            <TestCard
+              key={test._id}
+              imageTest={test}
+              deleteImageTest={
+                user?.isAdmin
+                  ? () => {
+                      deleteTest({ testId: test._id });
+                    }
+                  : undefined
+              }
+            />
+          );
         })}
       </div>
 
