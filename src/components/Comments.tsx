@@ -107,9 +107,9 @@ const Comments = ({ imageTest }: CommentsProps) => {
                   <AvatarFallback>{getInitials(comment.name)}</AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col">
-                  <p>
+                  <p className="font-semibold">
                     {comment.name}{" "}
-                    <span className="ml-1 text-sm text-muted-foreground">
+                    <span className="ml-1 text-sm font-normal text-muted-foreground">
                       {formatDistance(new Date(comment.createdAt), new Date(), {
                         addSuffix: true,
                       })}

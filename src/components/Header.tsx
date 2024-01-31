@@ -27,6 +27,9 @@ const Header = ({}: HeaderProps) => {
             <Link className="link" href={"/explore"}>
               Explore
             </Link>
+            <Link href="/account" className="link">
+              Account
+            </Link>
           </SignedIn>
           <SignedOut>
             <Link className="link" href={"/about"}>

@@ -24,6 +24,29 @@ export const createUser = mutation({
   },
 });
 
+export const updateUser = internalMutation({
+  args: {
+    userId: v.string(),
+    name: v.string(),
+    profileImage: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_user_id", (q) => q.eq("userId", args.userId))
+      .first();
+
+    if (!user) {
+      throw new ConvexError("user not found");
+    }
+
+    await ctx.db.patch(user._id, {
+      name: args.name,
+      profileImage: args.profileImage,
+    });
+  },
+});
+
 export const updateSubscription = internalMutation({
   args: {
     userId: v.string(),
@@ -78,6 +101,29 @@ export const getLoggedUser = query({
     }
 
     return getFullUser(ctx, userId);
+  },
+});
+
+export const updateMyProfile = mutation({
+  args: {
+    name: v.string(),
+  },
+  async handler(ctx, args) {
+    const userId = await getUserId(ctx);
+
+    if (!userId) {
+      throw new Error("you must be authenticated");
+    }
+
+    const user = await getFullUser(ctx, userId);
+
+    if (!user) {
+      throw new ConvexError("No user with this id!");
+    }
+
+    await ctx.db.patch(user._id, {
+      name: args.name,
+    });
   },
 });
 

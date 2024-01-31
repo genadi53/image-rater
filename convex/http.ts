@@ -30,6 +30,16 @@ http.route({
             profileImage: result.data.image_url,
           };
           await ctx.runMutation(api.users.createUser, { ...userData });
+          break;
+        }
+
+        case "user.updated": {
+          await ctx.runMutation(internal.users.updateUser, {
+            userId: result.data.id,
+            profileImage: result.data.image_url,
+            name: `${result.data.first_name} ${result.data.last_name}`,
+          });
+          break;
         }
       }
       return new Response(null, { status: 200 });

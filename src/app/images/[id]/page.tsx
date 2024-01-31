@@ -73,6 +73,7 @@ const ImagesPage = ({ params }: ImagesPageProps) => {
           imageId={secondImageId}
         />
       </div>
+      <Comments imageTest={imageTest} />
     </div>
   );
 };
