@@ -11,6 +11,7 @@ import { useSession } from "@clerk/nextjs";
 import { Progress } from "@/components/ui/progress";
 import { useRef } from "react";
 import Comments from "@/components/Comments";
+import { ImageTest } from "@/components/TestImage";
 
 interface ImagesPageProps {
   params: {
@@ -59,84 +60,19 @@ const ImagesPage = ({ params }: ImagesPageProps) => {
   }
 
   return (
-    <div className="mt-16">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="flex items-center flex-col gap-4">
-          <h2 className="text-2xl md:text-4xl font-bold text-center mb-4">
-            Test Image A
-          </h2>
-
-          <div className="relative w-[400px] h-[400px]">
-            <Image
-              fill
-              alt="image test a"
-              className="object-center object-cover lg:w-full"
-              src={getImageUrl(firstImageId)}
-            />
-          </div>
-
-          {hasVoted ? (
-            <>
-              <Progress
-                value={getVotePersentage(firstImageId)}
-                className="w-full"
-              />
-              <div className="text-lg">{getVotesFor(firstImageId)} Votes</div>
-            </>
-          ) : (
-            <Button
-              onClick={() => {
-                vote({
-                  testId: params.id as Id<"images">,
-                  imageId: firstImageId,
-                });
-              }}
-              size="lg"
-              className="w-fit"
-            >
-              Vote A
-            </Button>
-          )}
-        </div>
-
-        <div className="flex items-center flex-col gap-4">
-          <h2 className="text-2xl md:text-4xl font-bold text-center mb-4">
-            Test Image B
-          </h2>
-          <div className="relative w-[400px] h-[400px]">
-            <Image
-              fill
-              alt="image test b"
-              className="object-center object-cover lg:w-full"
-              src={getImageUrl(secondImageId)}
-            />
-          </div>
-          {hasVoted ? (
-            <>
-              <Progress
-                value={getVotePersentage(secondImageId)}
-                className="w-full"
-              />
-              <div className="text-lg">{getVotesFor(secondImageId)} Votes</div>
-            </>
-          ) : (
-            <Button
-              onClick={() => {
-                vote({
-                  testId: params.id as Id<"images">,
-                  imageId: secondImageId,
-                });
-              }}
-              size="lg"
-              className="w-fit"
-            >
-              Vote B
-            </Button>
-          )}
-        </div>
+    <div className="mt-16 gap-12 flex flex-col">
+      <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10">
+        <ImageTest
+          imageTest={imageTest}
+          hasVoted={hasVoted}
+          imageId={firstImageId}
+        />
+        <ImageTest
+          imageTest={imageTest}
+          hasVoted={hasVoted}
+          imageId={secondImageId}
+        />
       </div>
-
-      <Comments imageTest={imageTest} />
     </div>
   );
 };
