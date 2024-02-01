@@ -7,7 +7,7 @@ import Empty from "@/components/Empty";
 import { SkeletonCard } from "@/components/SkeletonCard";
 
 const DashboardPage = () => {
-  const userTests = useQuery(api.images.getImageTestByUser);
+  const userTests = useQuery(api.images.getMyImageTests);
   const sortedTests = [...(userTests ?? [])].reverse();
 
   const { isAuthenticated } = useConvexAuth();

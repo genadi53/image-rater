@@ -1,7 +1,5 @@
 import { getImageUrl } from "@/lib/getImageUrl";
 import Image from "next/image";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { getInitials } from "@/lib/nameInitals";
 import { Doc } from "../../convex/_generated/dataModel";
 import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
@@ -9,6 +7,7 @@ import { CheckCircleIcon, DotIcon } from "lucide-react";
 import { formatDistance } from "date-fns";
 import { Progress } from "./ui/progress";
 import { Button } from "./ui/button";
+import UserAvatar from "./UserAvatar";
 
 function getVotesFor(imageTest: Doc<"images">, imageId: string) {
   if (!imageTest) return 0;
@@ -55,10 +54,7 @@ export const ImageTest = ({
       />
 
       <div className="flex gap-4">
-        <Avatar>
-          <AvatarImage src={imageTest.profileImage} />
-          <AvatarFallback>{getInitials(imageTest.name)}</AvatarFallback>
-        </Avatar>
+        <UserAvatar imageUrl={imageTest.profileImage} name={imageTest.name} />
         <div className="flex flex-col text-gray-300">
           <div className="font-bold mb-2 text-white">{imageTest.title}</div>
           <div className="flex gap-2 items-center">

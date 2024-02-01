@@ -24,10 +24,9 @@ import { formatDistance } from "date-fns";
 import Image from "next/image";
 import Link from "next/link";
 import { Doc, Id } from "../../convex/_generated/dataModel";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useSession } from "@clerk/nextjs";
-import { getInitials } from "@/lib/nameInitals";
 import { TrashIcon } from "lucide-react";
+import UserAvatar from "./UserAvatar";
 
 interface TestCardProps {
   imageTest: Doc<"images">;
@@ -95,11 +94,7 @@ const TestCard = ({ imageTest, deleteImageTest }: TestCardProps) => {
           {imageTest.title}
         </h2>
         <div className="flex gap-4 items-center">
-          <Avatar>
-            <AvatarImage src={imageTest.profileImage} />
-            <AvatarFallback>{getInitials(imageTest.name)}</AvatarFallback>
-          </Avatar>
-
+          <UserAvatar imageUrl={imageTest.profileImage} name={imageTest.name} />
           <div className="flex flex-col">
             <p>{imageTest.name}</p>
             <p>

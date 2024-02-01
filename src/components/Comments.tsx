@@ -2,7 +2,6 @@
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Doc } from "../../convex/_generated/dataModel";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,7 +20,7 @@ import { useToast } from "./ui/use-toast";
 import { formatDistance } from "date-fns";
 import { useIsSubscribed } from "@/hooks/useIsSubscribed";
 import UpgradeButton from "./UpagradeButton";
-import { getInitials } from "@/lib/nameInitals";
+import UserAvatar from "./UserAvatar";
 
 interface CommentsProps {
   imageTest: Doc<"images">;
@@ -102,10 +101,10 @@ const Comments = ({ imageTest }: CommentsProps) => {
               key={`${comment.createdAt}-${idx}`}
             >
               <div className="flex gap-4">
-                <Avatar>
-                  <AvatarImage src={comment.profileImage} />
-                  <AvatarFallback>{getInitials(comment.name)}</AvatarFallback>
-                </Avatar>
+                <UserAvatar
+                  imageUrl={comment.profileImage}
+                  name={comment.name}
+                />
                 <div className="flex flex-col">
                   <p className="font-semibold">
                     {comment.name}{" "}
