@@ -79,7 +79,7 @@ export const getImageTestById = query({
   },
 });
 
-export const getImageTestByUser = query({
+export const getMyImageTests = query({
   args: {},
   handler: async (ctx, args) => {
     try {
@@ -89,13 +89,35 @@ export const getImageTestByUser = query({
         throw new ConvexError("Need to log in!");
       }
 
-      return (
-        ctx.db
-          .query("images")
-          .filter((q) => q.eq(q.field("userId"), userId))
-          // .order("asc")
-          .collect()
-      );
+      return ctx.db
+        .query("images")
+        .filter((q) => q.eq(q.field("userId"), userId))
+        .order("asc")
+        .collect();
+    } catch (error) {
+      console.error(error);
+      return [];
+    }
+  },
+});
+
+export const getImageTestsByUser = query({
+  args: {
+    userId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    try {
+      const user = await getFullUser(ctx, args.userId);
+
+      if (!user) {
+        throw new ConvexError("No such user!");
+      }
+
+      return ctx.db
+        .query("images")
+        .filter((q) => q.eq(q.field("userId"), user._id))
+        .order("asc")
+        .collect();
     } catch (error) {
       console.error(error);
       return [];

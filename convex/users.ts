@@ -6,7 +6,7 @@ import {
   mutation,
   query,
 } from "./_generated/server";
-import { getUserId } from "./utils";
+import { getUser, getUserId } from "./utils";
 import { CONSTANTS } from "../src/lib/constants";
 
 export const createUser = mutation({
@@ -101,6 +101,14 @@ export const getLoggedUser = query({
     }
 
     return getFullUser(ctx, userId);
+  },
+});
+
+export const getUserProfile = query({
+  args: { userId: v.string() },
+  handler: async (ctx, args) => {
+    const user = await getFullUser(ctx, args.userId);
+    return user;
   },
 });
 
