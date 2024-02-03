@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "convex/react";
+import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { SkeletonCard } from "@/components/SkeletonCard";
 import { api } from "../../../../convex/_generated/api";
 import Empty from "@/components/Empty";
@@ -8,6 +8,7 @@ import TestCard from "@/components/TestCard";
 import UserAvatar from "@/components/UserAvatar";
 import React from "react";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 
 interface ProfilePageProps {
   params: {
@@ -50,10 +51,24 @@ const UserTests: React.FC<{ userId: string }> = ({ userId }) => {
 };
 
 const ProfilePage = ({ params }: ProfilePageProps) => {
+  const { isAuthenticated } = useConvexAuth();
   const userId = params.userId;
   const user = useQuery(api.users.getUserProfile, {
     userId: params.userId,
   });
+  const followUser = useMutation(api.follows.followUser);
+  const unfollowUser = useMutation(api.follows.unfollowUser);
+
+  const isFollowerOf = useQuery(
+    api.follows.isFollowerOf,
+    !isAuthenticated || !user
+      ? "skip"
+      : {
+          targetUserId: user?._id,
+        }
+  );
+
+  const { toast } = useToast();
 
   return (
     <div className="grid grid-cols-3 mt-12">
@@ -66,7 +81,46 @@ const ProfilePage = ({ params }: ProfilePageProps) => {
         <h1 className="text-2xl mt-2">{user?.name}</h1>
 
         <div className="w-full my-8 flex justify-center">
-          <Button className="w-1/3">Hello</Button>
+          {isFollowerOf ? (
+            <Button
+              variant={"destructive"}
+              className="w-1/3"
+              disabled={!user}
+              onClick={async () => {
+                if (!user) return;
+                await unfollowUser({
+                  targetUserId: user._id,
+                }).catch((error) => {
+                  return toast({
+                    variant: "destructive",
+                    title: "There was a problem.",
+                    description: `You could not unfollow ${user.name}. Please try again!`,
+                  });
+                });
+              }}
+            >
+              Unfollow
+            </Button>
+          ) : (
+            <Button
+              className="w-1/3"
+              disabled={!user}
+              onClick={async () => {
+                if (!user) return;
+                await followUser({
+                  targetUserId: user._id,
+                }).catch((error) => {
+                  return toast({
+                    variant: "destructive",
+                    title: "There was a problem.",
+                    description: `You could not follow ${user.name}. Please try again!`,
+                  });
+                });
+              }}
+            >
+              Follow
+            </Button>
+          )}
         </div>
       </div>
       <div className="col-span-2">

@@ -9,6 +9,7 @@ import {
 import { getUser, getUserId } from "./utils";
 import { authMutation, authQuery } from "./utils";
 import { CONSTANTS } from "../src/lib/constants";
+import { Id } from "./_generated/dataModel";
 
 export const createUser = mutation({
   args: {
@@ -108,7 +109,7 @@ export const getLoggedUser = query({
 export const getUserProfile = query({
   args: { userId: v.string() },
   handler: async (ctx, args) => {
-    const user = await getFullUser(ctx, args.userId);
+    const user = await ctx.db.get(args.userId as Id<"users">);
     return user;
   },
 });

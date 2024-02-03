@@ -108,6 +108,7 @@ const Comments = ({ imageTest }: CommentsProps) => {
                 <UserAvatar
                   imageUrl={comment.profileImage}
                   name={comment.name}
+                  userId={comment.userId}
                 />
                 <div className="flex flex-col">
                   <p className="font-semibold">

@@ -54,7 +54,11 @@ export const ImageTest = ({
       />
 
       <div className="flex gap-4">
-        <UserAvatar imageUrl={imageTest.profileImage} name={imageTest.name} />
+        <UserAvatar
+          imageUrl={imageTest.profileImage}
+          name={imageTest.name}
+          userId={imageTest.userId}
+        />
         <div className="flex flex-col text-gray-300">
           <div className="font-bold mb-2 text-white">{imageTest.title}</div>
           <div className="flex gap-2 items-center">

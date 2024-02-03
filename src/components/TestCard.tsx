@@ -94,7 +94,11 @@ const TestCard = ({ imageTest, deleteImageTest }: TestCardProps) => {
           {imageTest.title}
         </h2>
         <div className="flex gap-4 items-center">
-          <UserAvatar imageUrl={imageTest.profileImage} name={imageTest.name} />
+          <UserAvatar
+            imageUrl={imageTest.profileImage}
+            name={imageTest.name}
+            userId={imageTest.userId}
+          />
           <div className="flex flex-col">
             <p className="">{imageTest.name}</p>
             <p>

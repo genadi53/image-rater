@@ -36,4 +36,11 @@ export default defineSchema({
     name: v.optional(v.string()),
     profileImage: v.optional(v.string()),
   }).index("by_test_id", ["imageTestId"]),
+
+  followers: defineTable({
+    userId: v.id("users"),
+    targetUserId: v.id("users"),
+  })
+    .index("by_user_id", ["userId"])
+    .index("by_userId_targetUserId", ["userId", "targetUserId"]),
 });
