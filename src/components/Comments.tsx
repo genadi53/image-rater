@@ -14,7 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "./ui/textarea";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { useToast } from "./ui/use-toast";
 import { formatDistance } from "date-fns";
@@ -33,6 +33,10 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 const Comments = ({ imageTest }: CommentsProps) => {
+  const commetns = useQuery(api.images.getComments, {
+    imageTestId: imageTest._id,
+  });
+
   const createComment = useMutation(api.images.addComment);
   const { toast } = useToast();
   const { isSubscribed } = useIsSubscribed();
@@ -94,10 +98,10 @@ const Comments = ({ imageTest }: CommentsProps) => {
           </form>
         </Form>
 
-        {imageTest.comments?.map((comment, idx) => {
+        {commetns?.map((comment, idx) => {
           return (
             <div
-              className="border-2 p-4 rounded-xl"
+              className="border-2 p-4 rounded-xl relative"
               key={`${comment.createdAt}-${idx}`}
             >
               <div className="flex gap-4">

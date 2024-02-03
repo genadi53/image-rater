@@ -1,11 +1,11 @@
 import { ConvexError, v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { getUser, getUserId } from "./utils";
+import { authMutation, authQuery } from "./utils";
 import { paginationOptsValidator } from "convex/server";
 import { getFullUser, isUserSubscribed } from "./users";
 import { Doc } from "./_generated/dataModel";
 
-export const createImageTest = mutation({
+export const createImageTest = authMutation({
   args: {
     title: v.string(),
     imageA: v.string(),
@@ -16,21 +16,21 @@ export const createImageTest = mutation({
   },
 
   handler: async (ctx, args) => {
-    const userId = await getUserId(ctx);
+    // const userId = await getUserId(ctx);
 
-    if (!userId) {
-      throw new ConvexError("You must be loged in!");
-    }
+    // if (!userId) {
+    //   throw new ConvexError("You must be loged in!");
+    // }
 
-    const user = await getFullUser(ctx, userId);
+    // const user = await getFullUser(ctx, userId);
 
-    if (!user) {
-      throw new ConvexError("No such user with this id!");
-    }
+    // if (!user) {
+    //   throw new ConvexError("No such user with this id!");
+    // }
 
     const isSubscirbed = await isUserSubscribed(ctx);
 
-    if (!isSubscirbed && user.credits <= 0) {
+    if (!isSubscirbed && ctx.user.credits <= 0) {
       throw new ConvexError("You must be subscribed!");
     }
 
@@ -40,10 +40,11 @@ export const createImageTest = mutation({
       votesB: 0,
       voteIds: [],
       comments: [],
+      userId: ctx.user._id,
     });
 
-    await ctx.db.patch(user._id, {
-      credits: Math.max(0, user.credits - 1),
+    await ctx.db.patch(ctx.user._id, {
+      credits: Math.max(0, ctx.user.credits - 1),
     });
 
     return imageTestId;
@@ -57,21 +58,13 @@ export const getImageTestById = query({
 
   handler: async (ctx, args) => {
     try {
-      const isSubscirbed = await isUserSubscribed(ctx);
       const imageTest = await ctx.db.get(args.testId);
 
       if (!imageTest) {
         throw new ConvexError("No test with this id!");
       }
 
-      let comments =
-        imageTest.comments.length === 0 ? [] : [imageTest.comments[0]];
-
-      if (isSubscirbed) {
-        comments = imageTest.comments;
-      }
-
-      return { ...imageTest, comments };
+      return imageTest;
     } catch (error) {
       console.error(error);
       return null;
@@ -79,19 +72,19 @@ export const getImageTestById = query({
   },
 });
 
-export const getMyImageTests = query({
+export const getMyImageTests = authQuery({
   args: {},
   handler: async (ctx, args) => {
     try {
-      const userId = await getUserId(ctx);
+      // const userId = await getUserId(ctx);
 
-      if (!userId) {
-        throw new ConvexError("Need to log in!");
-      }
+      // if (!userId) {
+      //   throw new ConvexError("Need to log in!");
+      // }
 
       return ctx.db
         .query("images")
-        .filter((q) => q.eq(q.field("userId"), userId))
+        .filter((q) => q.eq(q.field("userId"), ctx.user._id))
         .order("asc")
         .collect();
     } catch (error) {
@@ -135,19 +128,26 @@ export const getLatestImageTests = query({
   },
 });
 
-export const voteOnImage = mutation({
+export const voteOnImage = authMutation({
   args: {
     testId: v.id("images"),
     imageId: v.string(),
   },
 
   handler: async (ctx, args) => {
-    const userId = await getUserId(ctx);
+    // const userId = await getUserId(ctx);
 
-    if (!userId) {
-      throw new ConvexError("You must log in!");
-    }
+    // if (!userId) {
+    //   throw new ConvexError("You must log in!");
+    // }
 
+    // const user = await getFullUser(ctx, userId);
+
+    // if (!user) {
+    //   throw new ConvexError("No such user!");
+    // }
+
+    const userId = ctx.user._id;
     const imageTest = await ctx.db.get(args.testId);
 
     if (!imageTest) {
@@ -176,17 +176,23 @@ export const voteOnImage = mutation({
   },
 });
 
-export const addComment = mutation({
+export const addComment = authMutation({
   args: {
     testId: v.id("images"),
     text: v.string(),
   },
   handler: async (ctx, args) => {
-    const user = await getUser(ctx);
+    // const userId = await getUserId(ctx);
 
-    if (!user) {
-      throw new ConvexError("You must log in!");
-    }
+    // if (!userId) {
+    //   throw new ConvexError("You must log in!");
+    // }
+
+    // const user = await getFullUser(ctx, userId);
+
+    // if (!user) {
+    //   throw new ConvexError("No such user!");
+    // }
 
     const imageTest = await ctx.db.get(args.testId);
 
@@ -194,41 +200,82 @@ export const addComment = mutation({
       throw new ConvexError("No such image test!");
     }
 
-    const newComments = imageTest.comments ?? [];
-    newComments.unshift({
-      userId: user.subject,
-      name: user.name,
-      profileImage: user.pictureUrl,
+    // const newComments = imageTest.comments ?? [];
+    // newComments.unshift({
+    //   userId: user.subject,
+    //   name: user.name,
+    //   profileImage: user.pictureUrl,
+    //   text: args.text,
+    //   createdAt: Date.now(),
+    // });
+
+    // await ctx.db.patch(imageTest._id, {
+    //   comments: newComments,
+    // });
+
+    const commentId = await ctx.db.insert("comments", {
+      imageTestId: imageTest._id,
+      userId: ctx.user._id,
+      name: ctx.user.name,
+      profileImage: ctx.user.profileImage,
       text: args.text,
       createdAt: Date.now(),
     });
 
     await ctx.db.patch(imageTest._id, {
-      comments: newComments,
+      comments: [...imageTest.comments, commentId],
     });
 
-    return null;
+    return commentId;
   },
 });
 
-export const deleteImageTest = mutation({
+export const getComments = query({
+  args: {
+    imageTestId: v.id("images"),
+  },
+  handler: async (ctx, args) => {
+    const isSubscirbed = await isUserSubscribed(ctx);
+
+    const imageTest = await ctx.db.get(args.imageTestId);
+
+    if (!imageTest) {
+      throw new ConvexError("No such image test!");
+    }
+
+    let comments = await ctx.db
+      .query("comments")
+      .withIndex("by_test_id", (q) => q.eq("imageTestId", args.imageTestId))
+      .order("desc")
+      .collect();
+
+    // imageTest.comments.length === 0 ? [] : [imageTest.comments[0]];
+    if (isSubscirbed) {
+      return comments;
+    }
+
+    return comments.length === 0 ? [] : [comments[0]];
+  },
+});
+
+export const deleteImageTest = authMutation({
   args: {
     testId: v.id("images"),
   },
   handler: async (ctx, args) => {
-    const userId = await getUserId(ctx);
+    // const userId = await getUserId(ctx);
 
-    if (!userId) {
-      throw new ConvexError("You must log in!");
-    }
+    // if (!userId) {
+    //   throw new ConvexError("You must log in!");
+    // }
 
-    const user = await getFullUser(ctx, userId);
+    // const user = await getFullUser(ctx, userId);
 
-    if (!user) {
-      throw new ConvexError("No user with such id!");
-    }
+    // if (!user) {
+    //   throw new ConvexError("No user with such id!");
+    // }
 
-    if (!user.isAdmin) {
+    if (!ctx.user.isAdmin) {
       throw new ConvexError("You must be an admin to delete test!");
     }
 

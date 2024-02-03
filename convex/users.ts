@@ -7,6 +7,7 @@ import {
   query,
 } from "./_generated/server";
 import { getUser, getUserId } from "./utils";
+import { authMutation, authQuery } from "./utils";
 import { CONSTANTS } from "../src/lib/constants";
 
 export const createUser = mutation({
@@ -139,7 +140,8 @@ export const isUserSubscribed = async (ctx: QueryCtx | MutationCtx) => {
   const userId = await getUserId(ctx);
 
   if (!userId) {
-    throw new ConvexError("No user with this id!");
+    // throw new ConvexError("No user with this id!");
+    return false;
   }
 
   const userToCheck = await getFullUser(ctx, userId);

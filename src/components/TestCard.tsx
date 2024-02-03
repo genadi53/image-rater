@@ -39,7 +39,7 @@ const TestCard = ({ imageTest, deleteImageTest }: TestCardProps) => {
   function hasVoted(voteIds: string[] | undefined) {
     if (!voteIds || voteIds.length === 0) return false;
     if (!session || !session.user) return false;
-    return imageTest.voteIds.includes(session.user.id);
+    return imageTest.voteIds.includes(session.user.id as Id<"users">);
   }
 
   return (
@@ -96,7 +96,7 @@ const TestCard = ({ imageTest, deleteImageTest }: TestCardProps) => {
         <div className="flex gap-4 items-center">
           <UserAvatar imageUrl={imageTest.profileImage} name={imageTest.name} />
           <div className="flex flex-col">
-            <p>{imageTest.name}</p>
+            <p className="">{imageTest.name}</p>
             <p>
               {formatDistance(new Date(imageTest._creationTime), new Date(), {
                 addSuffix: true,
